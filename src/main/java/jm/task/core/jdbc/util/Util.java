@@ -16,16 +16,21 @@ public class Util {
     private static final String userName = "root";
     private static final String password = "root";
 
+    private static Connection connection;
     public static Connection getConnection() throws SQLException, ClassNotFoundException {
-        return getConnection(hostName, dbName, userName, password);
+        if (connection == null) {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            String connectionUrl = "jdbc:mysql://" + hostName + ":3306/" + dbName;
+            connection = DriverManager.getConnection(connectionUrl, userName, password);
+        }
+
+        return connection;
     }
 
-    public static Connection getConnection(String hostName, String dbName, String userName, String password)
-            throws SQLException, ClassNotFoundException {
-        Class.forName("com.mysql.cj.jdbc.Driver");
-        String connectionURL = "jdbc:mysql://" + hostName + ":3306/" + dbName;
-
-        return DriverManager.getConnection(connectionURL, userName, password);
+    public static void closeConnection() throws SQLException {
+        if (connection != null) {
+            connection.close();
+        }
     }
 
     private static SessionFactory sessionFactory;
