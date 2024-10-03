@@ -44,7 +44,13 @@ public class UserDaoJDBCImpl implements UserDao {
             pstmt.setString(2, lastName);
             pstmt.setByte(3, age);
             pstmt.executeUpdate();
+            Util.getConnection().commit();
         } catch (SQLException | ClassNotFoundException e) {
+            try {
+                Util.getConnection().rollback();
+            } catch (SQLException | ClassNotFoundException e1) {
+                e1.printStackTrace();
+            }
             e.printStackTrace();
         }
     }
@@ -55,7 +61,13 @@ public class UserDaoJDBCImpl implements UserDao {
         try (PreparedStatement pstmt = Util.getConnection().prepareStatement(query)) {
             pstmt.setLong(1, id);
             pstmt.executeUpdate();
+            Util.getConnection().commit();
         } catch (SQLException | ClassNotFoundException e) {
+            try {
+                Util.getConnection().rollback();
+            } catch (SQLException | ClassNotFoundException e1) {
+                e1.printStackTrace();
+            }
             e.printStackTrace();
         }
     }
@@ -84,7 +96,13 @@ public class UserDaoJDBCImpl implements UserDao {
         String query = "DELETE FROM users";
         try (Statement stmt = Util.getConnection().createStatement()) {
             stmt.executeUpdate(query);
+            Util.getConnection().commit();
         } catch (SQLException | ClassNotFoundException e) {
+            try {
+                Util.getConnection().rollback();
+            } catch (SQLException | ClassNotFoundException e1) {
+                e1.printStackTrace();
+            }
             e.printStackTrace();
         }
     }
