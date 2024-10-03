@@ -1,6 +1,7 @@
 package jm.task.core.jdbc.util;
 
 import jm.task.core.jdbc.model.User;
+import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
@@ -34,37 +35,40 @@ public class Util {
     }
 
     private static SessionFactory sessionFactory;
-    public static SessionFactory getSessionFactory() throws SQLException, ClassNotFoundException {
+    public static SessionFactory getSessionFactory() throws HibernateException {
         if (sessionFactory == null) {
-            try {
-                Configuration configuration = new Configuration();
 
-                Properties settings = new Properties();
-                settings.put(Environment.DRIVER, "com.mysql.cj.jdbc.Driver");
-                settings.put(Environment.URL, "jdbc:mysql://" + hostName + ":3306/" + dbName);
-                settings.put(Environment.USER, userName);
-                settings.put(Environment.PASS, password);
-                settings.put(Environment.DIALECT, org.hibernate.dialect.MySQLDialect.class.getName());
+            Configuration configuration = new Configuration();
 
-                settings.put(Environment.SHOW_SQL, "true");
+            Properties settings = new Properties();
+            settings.put(Environment.DRIVER, "com.mysql.cj.jdbc.Driver");
+            settings.put(Environment.URL, "jdbc:mysql://" + hostName + ":3306/" + dbName);
+            settings.put(Environment.USER, userName);
+            settings.put(Environment.PASS, password);
+            settings.put(Environment.DIALECT, org.hibernate.dialect.MySQLDialect.class.getName());
 
-                settings.put(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
+            settings.put(Environment.SHOW_SQL, "true");
 
-                settings.put(Environment.HBM2DDL_AUTO, "");
+            settings.put(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
 
-                configuration.setProperties(settings);
+            settings.put(Environment.HBM2DDL_AUTO, "");
 
-                configuration.addAnnotatedClass(User.class);
+            configuration.setProperties(settings);
 
-                ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
-                        .applySettings(configuration.getProperties()).build();
+            configuration.addAnnotatedClass(User.class);
 
-                sessionFactory = configuration.buildSessionFactory(serviceRegistry);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
+                    .applySettings(configuration.getProperties()).build();
+
+            sessionFactory = configuration.buildSessionFactory(serviceRegistry);
         }
 
         return sessionFactory;
+    }
+
+    public static void closeSessionFactory() throws SQLException {
+        if (sessionFactory != null) {
+            sessionFactory.close();
+        }
     }
 }

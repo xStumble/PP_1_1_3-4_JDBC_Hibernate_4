@@ -3,11 +3,12 @@ package jm.task.core.jdbc.dao;
 import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
 
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
-import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class UserDaoHibernateImpl implements UserDao {
@@ -24,7 +25,7 @@ public class UserDaoHibernateImpl implements UserDao {
             Query query = session.createSQLQuery(sql).addEntity(User.class);
             query.executeUpdate();
             transaction.commit();
-        } catch (SQLException | ClassNotFoundException e) {
+        } catch (HibernateException e) {
             e.printStackTrace();
         }
     }
@@ -37,7 +38,7 @@ public class UserDaoHibernateImpl implements UserDao {
             Query query = session.createSQLQuery(sql).addEntity(User.class);
             query.executeUpdate();
             transaction.commit();
-        } catch (SQLException | ClassNotFoundException e) {
+        } catch (HibernateException e) {
             e.printStackTrace();
         }
     }
@@ -49,7 +50,7 @@ public class UserDaoHibernateImpl implements UserDao {
             transaction = session.beginTransaction();
             session.save(new User(name, lastName, age));
             transaction.commit();
-        } catch (SQLException | ClassNotFoundException e) {
+        } catch (HibernateException e) {
             if (transaction != null) {
                 transaction.rollback();
             }
@@ -65,7 +66,7 @@ public class UserDaoHibernateImpl implements UserDao {
             User user = session.load(User.class, id);
             session.delete(user);
             transaction.commit();
-        } catch (SQLException | ClassNotFoundException e) {
+        } catch (HibernateException e) {
             if (transaction != null) {
                 transaction.rollback();
             }
@@ -75,13 +76,14 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public List<User> getAllUsers() {
+        List<User> users = new ArrayList<>();
         try (Session session = Util.getSessionFactory().openSession()) {
-            return session.createQuery("from User", User.class).list();
-        } catch (SQLException | ClassNotFoundException e) {
+            users = session.createQuery("from User", User.class).list();
+        } catch (HibernateException e) {
             e.printStackTrace();
         }
 
-        return null;
+        return users;
     }
 
     @Override
@@ -91,7 +93,7 @@ public class UserDaoHibernateImpl implements UserDao {
             transaction = session.beginTransaction();
             session.createQuery("delete from User").executeUpdate();
             transaction.commit();
-        } catch (SQLException | ClassNotFoundException e) {
+        } catch (HibernateException e) {
             if (transaction != null) {
                 transaction.rollback();
             }
